@@ -1,0 +1,12 @@
+.DS_Store
+
+.env
+.env.local
+.env.prod
+ecosystem.config.js
+
+data.sqlite
+test.sqlite
+
+.idea
+scratches

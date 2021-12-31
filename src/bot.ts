@@ -327,10 +327,6 @@ bot.command(["now", "current"], async (ctx) => {
   }
 });
 
-bot.command("error", () => {
-  throw new Error("LOL");
-});
-
 bot.command("info", async (ctx) => {
   if (!ctx.profile.tz_id) {
     await ctx.replyBack(

@@ -111,7 +111,7 @@ const tick = async () => {
 
     const locations = [...new Set(receivers.items.map((i) => i.location))];
     let weatherForecasts = await Promise.all(
-      locations.map((i) => weatherAPIRequest("forecast", { q: i }))
+      locations.map((i) => weatherAPIRequest("forecast", { q: i as string }))
     );
 
     receivers.items.forEach((receiver) => {

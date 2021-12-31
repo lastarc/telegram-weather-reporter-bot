@@ -62,7 +62,7 @@ const encounteredError = async (
       if (process.env.LOG_CHAT || process.env.OWNER) {
         await bot.api.sendMessage(
           (process.env.LOG_CHAT || process.env.OWNER) as string,
-          `\\<\\=\\=\\= ${new Date().toUTCString()} \nEncountered error in «tick»: \n\n${err} \n\nctx: \n\`\`\` \n${JSON.stringify(
+          `\\<\\=\\=\\= ${new Date().toUTCString()} \nError: \n\n${err} \n\nctx: \n\`\`\` \n${JSON.stringify(
             ctx,
             null,
             "\t"

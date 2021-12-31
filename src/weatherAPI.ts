@@ -5,12 +5,11 @@ const WEATHER_API_BASE_URL = "https://api.weatherapi.com/v1";
 
 export const weatherAPIRequest = (
   endpoint: string,
-  query: object
+  query: Record<string, string>
 ): Promise<CurrentWeatherAPIResponse> => {
   let queryString = `?key=${process.env.WEATHER_API_TOKEN as string}`;
   for (const key in query) {
     if (query.hasOwnProperty(key)) {
-      // @ts-ignore
       queryString += `&${key}=${query[key]}`;
     }
   }

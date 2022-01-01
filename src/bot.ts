@@ -99,14 +99,15 @@ const tick = async () => {
     time: fromTime(`${now.getUTCHours()}:${now.getUTCMinutes()}`),
     state: "active",
   });
-
-  console.log(`Receivers count: ${receivers.count}`);
+  
+  receivers.items = receivers.items.filter((i) => i.location);
+  receivers.count = receivers.items.length;
 
   if (receivers.count) {
     console.log(
-      `-> User IDs (${receivers.count}): ${[
-        ...new Set(receivers.items.map((i) => i.userKey)),
-      ].join(", ")}`
+      `-> User IDs (${receivers.count}): ${
+        [...new Set(receivers.items.map((i) => i.userKey))].join(", ") || "-"
+      }`
     );
 
     const locations = [...new Set(receivers.items.map((i) => i.location))];

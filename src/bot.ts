@@ -361,7 +361,6 @@ bot.command("list", async (ctx) => {
             (ctx.user.defaultProfile == profile.key ? " (default)" : "")
         )
         .row();
-      console.log(profile, keyboard);
     }
     return ctx.replyBack("Your profiles: ", {
       reply_markup: keyboard,
@@ -433,7 +432,6 @@ bot.command("change", async (ctx) => {
   }
   const profilesList = await profiles.fetch({ userKey: ctx.user.key });
   if (profilesList.count) {
-    console.log(profilesList);
     let keyboard = new InlineKeyboard();
     for (const profile of profilesList.items) {
       keyboard

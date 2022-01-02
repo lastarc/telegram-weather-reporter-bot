@@ -467,6 +467,11 @@ bot.callbackQuery(new RegExp(/changeProfile->/), async (ctx) => {
 
 bot.command("delete", async (ctx) => {
   if (ctx.match) {
+    if (ctx.match == ctx.profile.name) {
+      return ctx.answerCallbackQuery(
+        "You cannot delete a default profile. \nFirst switch default profile to another one."
+      );
+    }
     const profile = await profiles.fetch({
       userKey: ctx.user.key,
       name: ctx.match,

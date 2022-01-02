@@ -529,6 +529,7 @@ bot.callbackQuery(new RegExp(/deleteProfile->/), async (ctx) => {
 bot.api.setMyCommands([
   { command: "start", description: "Register and show the welcome message" },
   { command: "help", description: "Show the instructions for usage" },
+  { command: "lang", description: "Change the language" },
   { command: "location", description: "Show or set the location" },
   { command: "time", description: "Show or set the time" },
   { command: "current", description: "Show current weather" },

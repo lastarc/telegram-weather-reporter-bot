@@ -73,7 +73,7 @@ const encounteredError = async (
         );
       }
     }
-    await ctx?.replyBack("Encountered an error, please try again later.");
+    await ctx?.replyBack(locale("encounteredError", ctx?.user.lang));
   } catch (e) {
     console.error("FATAL ERROR: ");
     console.error(e);
@@ -157,9 +157,8 @@ bot.use(async (ctx, next) => {
   let user, profile;
   user = await users.get(ctx.from!.id.toString());
   if (!user) {
-    const msg = await ctx.reply(
-      "We couldn't find you in our database. \nCreating an account for you..."
-    );
+    await ctx.reply(locale("accountNotFound"));
+    const msg = await ctx.reply(locale("accountCreating"));
     user = await users.put(
       {
         id: ctx.from!.id,
@@ -189,7 +188,7 @@ bot.use(async (ctx, next) => {
     await bot.api.editMessageText(
       msg.chat.id,
       msg.message_id,
-      msg.text + " Done."
+      msg.text + " " + locale("done")
     );
   } else {
     profile = await profiles.get(user.defaultProfile!.toString());
@@ -217,11 +216,13 @@ bot.command("help", async (ctx) => {
 bot.command(["loc", "location"], async (ctx) => {
   if (!ctx.match) {
     if (ctx.profile.location) {
-      await ctx.reply(`Your current location is "${ctx.profile.location}"`);
-    } else {
       await ctx.reply(
-        'You don\'t have a location set. \nUse "/location CITY" to set a location.'
+        locale("currentLocation", ctx.user.lang, {
+          location: ctx.profile.location,
+        })
       );
+    } else {
+      await ctx.reply(locale("noLocationSet", ctx.user.lang));
     }
   } else {
     const response = await weatherAPIRequest("current", { q: ctx.match });
@@ -234,7 +235,9 @@ bot.command(["loc", "location"], async (ctx) => {
         ctx.profile.key
       );
       await ctx.replyBack(
-        `Your location has been updated to ${response.location.name}`
+        locale("newLocation", ctx.user.lang, {
+          location: response.location.name,
+        })
       );
     } else if (response.error.code === 1006) {
       return ctx.replyBack(response.error.message);
@@ -248,10 +251,7 @@ bot.command("time", async (ctx) => {
   if (!ctx.match) {
     if (ctx.profile.time !== null && ctx.profile.time !== undefined) {
       if (!ctx.profile.tz_id) {
-        await ctx.replyBack(
-          "Since you don't have a time zone set, Greenwich Mean Time (GMT) will be used. \n" +
-            "You can change the time zone by changing your /location."
-        );
+        await ctx.replyBack(locale("noTimeZone", ctx.user.lang));
       }
       const timeUTC = toTime(ctx.profile.time);
       const time = utcToZonedTime(
@@ -259,21 +259,16 @@ bot.command("time", async (ctx) => {
         ctx.profile.tz_id || "GMT"
       );
       await ctx.replyBack(
-        `Your current time is "${pad(time.getHours())}:${pad(
-          time.getMinutes()
-        )}"`
+        locale("currentTime", ctx.user.lang, {
+          time: `${pad(time.getHours())}:${pad(time.getMinutes())}`,
+        })
       );
     } else {
-      await ctx.replyBack(
-        'You don\'t have a time set. \nUse "/time hh:mm" to set a time.'
-      );
+      await ctx.replyBack(locale("noTimeSet", ctx.user.lang));
     }
   } else {
     if (!ctx.profile.tz_id) {
-      await ctx.replyBack(
-        "Since you don't have a time zone set, Greenwich Mean Time (GMT) will be used. \n" +
-          "You can change the time zone by changing your /location."
-      );
+      await ctx.replyBack(locale("noTimeZone", ctx.user.lang));
     }
     const time = zonedTimeToUtc(
       `2020-02-20T${ctx.match}`,
@@ -285,7 +280,11 @@ bot.command("time", async (ctx) => {
       },
       ctx.profile.key
     );
-    await ctx.replyBack("Your time has been updated");
+    await ctx.replyBack(
+      locale("newTime", ctx.user.lang, {
+        time: `${time.getUTCHours()}:${time.getUTCMinutes()}`,
+      })
+    );
   }
 });
 
@@ -330,10 +329,7 @@ bot.command(["now", "current"], async (ctx) => {
 
 bot.command("info", async (ctx) => {
   if (!ctx.profile.tz_id) {
-    await ctx.replyBack(
-      "Since you don't have a time zone set, Greenwich Mean Time (GMT) will be used. \n" +
-        "You can change the time zone by changing your /location."
-    );
+    await ctx.replyBack(locale("noTimeZone", ctx.user.lang));
   }
   let time: Date;
   if (ctx.profile.time) {
@@ -362,18 +358,16 @@ bot.command("list", async (ctx) => {
         )
         .row();
     }
-    return ctx.replyBack("Your profiles: ", {
+    return ctx.replyBack(locale("profilesList", ctx.user.lang), {
       reply_markup: keyboard,
     });
   }
-  return ctx.replyBack("No profiles found");
+  return ctx.replyBack(locale("noProfiles", ctx.user.lang));
 });
 
 bot.command("new", async (ctx) => {
   if (!ctx.match) {
-    return ctx.replyBack(
-      "Please provide a name for the default profile. \nEx. /new mynewprofile"
-    );
+    return ctx.replyBack(locale("noNameIndicatedForNewProfile", ctx.user.lang));
   }
   const existingProfiles = await profiles.fetch({
     userKey: ctx.user.key,
@@ -381,7 +375,7 @@ bot.command("new", async (ctx) => {
   });
   if (existingProfiles.count) {
     return ctx.replyBack(
-      "There is already a profile with the given name. \nChoose another name"
+      locale("profileNameExistsChooseAnother", ctx.user.lang)
     );
   }
   const profile = await profiles.put({
@@ -394,13 +388,15 @@ bot.command("new", async (ctx) => {
     throw new Error("Failed to create new user profile!");
   }
   await users.update({ defaultProfile: profile.key }, ctx.user.key as string);
-  return ctx.replyBack(`A new profile "${ctx.match}" has been created`);
+  return ctx.replyBack(
+    locale("newProfile", ctx.user.lang, { name: ctx.match })
+  );
 });
 
 bot.command("rename", async (ctx) => {
   if (!ctx.match) {
     return ctx.replyBack(
-      "Please provide a new name for the default profile. \nEx. /rename abettername"
+      locale("noNameIndicatedForProfileRenaming", ctx.user.lang)
     );
   }
   // TODO: check whether a profile with same name exists (names should be unique)
@@ -410,7 +406,9 @@ bot.command("rename", async (ctx) => {
     },
     ctx.profile.key
   );
-  return ctx.replyBack(`Default profile has been renamed to "${ctx.match}"`);
+  return ctx.replyBack(
+    locale("renamedProfile", ctx.user.lang, { name: ctx.match })
+  );
 });
 
 bot.command("change", async (ctx) => {
@@ -425,10 +423,10 @@ bot.command("change", async (ctx) => {
         ctx.user.key
       );
       return ctx.replyBack(
-        `Your default profile has been changed to "${profile.items[0].name}"`
+        locale("changedProfile", ctx.user.lang, { name: profile.items[0].name })
       );
     }
-    return ctx.replyBack("The profile could not be found");
+    return ctx.replyBack(locale("noProfile", ctx.user.lang));
   }
   const profilesList = await profiles.fetch({ userKey: ctx.user.key });
   if (profilesList.count) {
@@ -437,16 +435,18 @@ bot.command("change", async (ctx) => {
       keyboard
         .text(
           profile.name +
-            (ctx.user.defaultProfile == profile.key ? " (default)" : ""),
+            (ctx.user.defaultProfile == profile.key
+              ? ` (${locale("default", ctx.user.lang)})`
+              : ""),
           `changeProfile->${profile.name}`
         )
         .row();
     }
-    return ctx.replyBack("Choose the profile you want to change to: ", {
+    return ctx.replyBack(locale("chooseProfileForChange", ctx.user.lang), {
       reply_markup: keyboard,
     });
   }
-  return ctx.replyBack("No profiles found");
+  return ctx.replyBack(locale("noProfiles", ctx.user.lang));
 });
 
 bot.callbackQuery(new RegExp(/changeProfile->/), async (ctx) => {
@@ -457,12 +457,12 @@ bot.callbackQuery(new RegExp(/changeProfile->/), async (ctx) => {
   const profile = await profiles.fetch({ userKey: ctx.user.key, name });
   if (profile.items && profile.items[0]) {
     await users.update({ defaultProfile: profile.items[0].key }, ctx.user.key);
-    await ctx.answerCallbackQuery("Done");
+    await ctx.answerCallbackQuery(locale("done", ctx.user.lang));
     return ctx.replyBack(
-      `Your default profile has been changed to "${profile.items[0].name}"`
+      locale("changedProfile", ctx.user.lang, { name: profile.items[0].name })
     );
   }
-  return ctx.answerCallbackQuery("The profile could not be found");
+  return ctx.answerCallbackQuery(locale("noProfile", ctx.user.lang));
 });
 
 bot.command("delete", async (ctx) => {
@@ -479,10 +479,10 @@ bot.command("delete", async (ctx) => {
     if (profile.items && profile.items[0]) {
       await profiles.delete(profile.items[0].key as string);
       return ctx.replyBack(
-        `The profile "${profile.items[0].name}" has been successfully deleted`
+        locale("deletedProfile", ctx.user.lang, { name: profile.items[0].name })
       );
     }
-    return ctx.replyBack("The profile could not be found");
+    return ctx.replyBack(locale("noProfile", ctx.user.lang));
   }
   const profilesList = await profiles.fetch({ userKey: ctx.user.key });
   if (profilesList.count) {
@@ -491,16 +491,18 @@ bot.command("delete", async (ctx) => {
       keyboard
         .text(
           profile.name +
-            (ctx.user.defaultProfile == profile.key ? " (default)" : ""),
+            (ctx.user.defaultProfile == profile.key
+              ? ` (${locale("default", ctx.user.lang)})`
+              : ""),
           `deleteProfile->${profile.name}`
         )
         .row();
     }
-    return ctx.replyBack("Choose the profile you want to delete: ", {
+    return ctx.replyBack(locale("chooseProfileForDelete", ctx.user.lang), {
       reply_markup: keyboard,
     });
   }
-  return ctx.replyBack("No profiles found");
+  return ctx.replyBack(locale("noProfiles", ctx.user.lang));
 });
 
 bot.callbackQuery(new RegExp(/deleteProfile->/), async (ctx) => {
@@ -510,18 +512,18 @@ bot.callbackQuery(new RegExp(/deleteProfile->/), async (ctx) => {
   );
   if (name == ctx.profile.name) {
     return ctx.answerCallbackQuery(
-      "You cannot delete a default profile. \nFirst switch default profile to another one."
+      locale("cannotDeleteDefaultProfile", ctx.user.lang)
     );
   }
   const profile = await profiles.fetch({ userKey: ctx.user.key, name });
   if (profile.items && profile.items[0]) {
     await profiles.delete(profile.items[0].key as string);
-    await ctx.answerCallbackQuery("Done");
+    await ctx.answerCallbackQuery(locale("done", ctx.user.lang));
     return ctx.replyBack(
-      `The profile "${profile.items[0].name}" has been successfully deleted`
+      locale("deletedProfile", ctx.user.lang, { name: profile.items[0].name })
     );
   }
-  return ctx.answerCallbackQuery("The profile could not be found");
+  return ctx.answerCallbackQuery(locale("noProfile", ctx.user.lang));
 });
 
 bot.api.setMyCommands([

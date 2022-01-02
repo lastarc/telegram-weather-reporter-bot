@@ -47,17 +47,21 @@ const strings: LocaleStringList = {
       "Привет! Благодарим вас за использование нашего бота 🙂 \n" +
       "Для справки: /help",
   },
-  welcomeBack: {
-    en: "Welcome back! \n" + "For help: /help",
-    ru: "С возвращением!\n" + "Для справки: /help",
+  accountNotFound: {
+    en: "We couldn't find you in our database",
+    ru: "Мы не смогли найти вас в нашей базе данных",
   },
-  alreadyUser: {
-    en: "You are already a user! \n" + "For help: /help",
-    ru: "Вы уже являетесь пользователем!\n" + "Для справки: /help",
+  accountCreating: {
+    en: "Creating an account...",
+    ru: "Создание учетной записи...",
   },
-  notFoundInDatabase: {
-    en: 'We couldn\'t find you in our database! Try "/start"ing over.',
-    ru: 'Мы не смогли найти вас в нашей базе данных! Попробуйте начать сначала: "/start"',
+  done: {
+    en: "Done",
+    ru: "Готово",
+  },
+  default: {
+    en: "Default",
+    ru: "По умолчанию",
   },
   noLocationIndicated: {
     en: "No location indicated!",
@@ -71,17 +75,9 @@ const strings: LocaleStringList = {
     en: "No language indicated!",
     ru: "Язык не указан!",
   },
-  noLocationSetByUser: {
-    en: "You haven't set your location yet. \n" + "For help: /help",
-    ru: "Вы еще не определили свое местоположение.\n" + "Для справки: /help",
-  },
   noLocationIndicatedAndNoDefault: {
     en: "You have neither indicated a location nor have a default location tied to your profile!",
     ru: "Вы не указали местоположение и у вас нет привязанного местоположения к своему профилю!",
-  },
-  unidentifiedOffset: {
-    en: "Unidentified offset",
-    ru: "Неопознанное смещение",
   },
   languageNotRecognized: {
     en(languages: Array<string>) {
@@ -93,23 +89,43 @@ const strings: LocaleStringList = {
       return `Язык не распознан. Возможные варианты: ${languages.join(", ")}.`;
     },
   },
-  locationSet: {
+  noLocationSet: {
     en:
-      'Your location is set as "{user.location}", ' +
-      'which is recognized as "{response.location.name}, ' +
-      '{response.location.region}, {response.location.country}".',
+      "You don't have a location set. " +
+      'Use "/location CITY" to set a location.',
     ru:
-      'Ваше местоположение установлено как "{user.location}", ' +
-      'которое распознается как "{response.location.name}, ' +
-      '{response.location.region}, {response.location.country}".',
+      "У вас нет определенного местоположения. " +
+      'Используйте "/location CITY", чтобы указать местоположение.',
   },
-  timeSet: {
+  currentLocation: {
+    en: 'Your current location is "{location}"',
+    ru: 'Ваше текущее местоположение "{location}"',
+  },
+  newLocation: {
+    en: 'Your location has been updated to "{location}"',
+    ru: 'Ваше местоположение было изменено на "{location}"',
+  },
+  noTimeZone: {
     en:
-      'Your time is set as "{time} GMT{offset}", ' +
-      'which is also "{hours}:{minutes} GMT".',
+      "Since you don't have a time zone set, Greenwich Mean Time (GMT) will be used. \n" +
+      "You can change the time zone by changing your location (/location CITY).",
     ru:
-      'Ваше время установлено как "{time} GMT{offset}", ' +
-      'что также обозначается как "{hours}:{minutes} GMT".',
+      "Поскольку у вас не установлен часовой пояс, будет использоваться среднее время по Гринвичу (GMT).\n" +
+      "Вы можете изменить часовой пояс, изменив свое местоположение (/location CITY).",
+  },
+  noTimeSet: {
+    en: "You don't have a time set. \n" + 'Use "/time hh:mm" to set a time.',
+    ru:
+      "У вас нет установленного времени. \n" +
+      'Используйте "/time hh:mm", чтобы установить время.',
+  },
+  currentTime: {
+    en: 'Your time is set as "{time}"',
+    ru: 'Ваше время установлено как "{time}"',
+  },
+  newTime: {
+    en: "Your time has been updated",
+    ru: "Ваше время было обновлено",
   },
   languageSet: {
     en: 'Your language is set as "{lang}"',
@@ -189,6 +205,76 @@ const strings: LocaleStringList = {
     en: "Location: {location} \n" + "Time: {time}",
     ru: "Местоположение: {location} \n" + "Время: {time}",
   },
+  encounteredError: {
+    en: "Encountered an error, please try again later.",
+    ru: "Произошла ошибка, пожалуйста, повторите попытку позже.",
+  },
+  noProfiles: {
+    en: "No profiles found",
+    ru: "Профили не найдены",
+  },
+  profilesList: {
+    en: "Your profiles:",
+    ru: "Ваши профили:",
+  },
+  noNameIndicatedForNewProfile: {
+    en:
+      "Please provide a name for the new profile. \n" +
+      "Ex.: /new mynewprofile",
+    ru:
+      "Пожалуйста, укажите имя для нового профиля. \n" +
+      "Например: /new mynewprofile",
+  },
+  profileNameExistsChooseAnother: {
+    en:
+      "There is already a profile with the given name. \n" +
+      "Choose another name",
+    ru: "Уже есть профиль с указанным именем.\n" + "Выберите другое имя",
+  },
+  newProfile: {
+    en: 'A new profile "{name}" has been created',
+    ru: 'Создан новый профиль "{name}"',
+  },
+  noNameIndicatedForProfileRenaming: {
+    en:
+      "Please provide a new name for the default profile. \n" +
+      "Ex.: /rename abettername",
+    ru:
+      "Пожалуйста, укажите новое имя для профиля по умолчанию. \n" +
+      "Пример: /rename abettername",
+  },
+  renamedProfile: {
+    en: 'Default profile has been renamed to "{name}"',
+    ru: 'Профиль по умолчанию был переименован в "{name}"',
+  },
+  changedProfile: {
+    en: 'Your default profile has been changed to "{name}"',
+    ru: 'Ваш профиль по умолчанию был изменен на "{name}".',
+  },
+  noProfile: {
+    en: "No profile found",
+    ru: "Профиль не найден",
+  },
+  chooseProfileForChange: {
+    en: "Choose the profile you want to change to:",
+    ru: "Выберите профиль, на который вы хотите сменить:",
+  },
+  deletedProfile: {
+    en: 'The profile "{name}" has been successfully deleted',
+    ru: 'Профиль "{name}" был успешно удален',
+  },
+  chooseProfileForDelete: {
+    en: "Choose the profile you want to delete:",
+    ru: "Выберите профиль, который вы хотите удалить:",
+  },
+  cannotDeleteDefaultProfile: {
+    en:
+      "You cannot delete a default profile. \n" +
+      "First switch default profile to another one.",
+    ru:
+      "Вы не можете удалить профиль по умолчанию. \n" +
+      "Сначала переключите профиль по умолчанию на другой.",
+  },
 };
 const fallbackLang = "en";
 const deepValue = (obj: any, path: string) => {
@@ -198,11 +284,7 @@ const deepValue = (obj: any, path: string) => {
   return obj;
 };
 
-export function locale(
-  key: any,
-  lang: string | null | any,
-  data?: TemplateData
-): string {
+export function locale(key: any, lang?: string, data?: TemplateData): string {
   if (strings.hasOwnProperty(key)) {
     const item = strings[key][lang || fallbackLang];
     return typeof item === "string"

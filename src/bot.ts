@@ -99,7 +99,7 @@ const tick = async () => {
     time: fromTime(`${now.getUTCHours()}:${now.getUTCMinutes()}`),
     state: "active",
   });
-  
+
   receivers.items = receivers.items.filter((i) => i.location);
   receivers.count = receivers.items.length;
 

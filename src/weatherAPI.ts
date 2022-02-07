@@ -9,7 +9,7 @@ export const weatherAPIRequest = (
 ): Promise<CurrentWeatherAPIResponse> => {
   let queryString = `?key=${process.env.WEATHER_API_TOKEN as string}`;
   for (const key in query) {
-    if (query.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(query, key)) {
       queryString += `&${key}=${query[key]}`;
     }
   }

@@ -285,7 +285,7 @@ const deepValue = (obj: any, path: string) => {
 };
 
 export function locale(key: any, lang?: string, data?: TemplateData): string {
-  if (strings.hasOwnProperty(key)) {
+  if (Object.prototype.hasOwnProperty.call(strings, key)) {
     const item = strings[key][lang || fallbackLang];
     return typeof item === "string"
       ? item.replace(/{((\w*\.*)*)}/g, (match: string, prop: any) => {
